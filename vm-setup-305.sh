@@ -250,7 +250,7 @@ runStep 4 "Installing MySQL Server" installMySQLServer
 runStep 5 "Installing PhpMyAdmin" installPhpMyAdmin
 runStep 6 "Installing Node" installNode
 runStep 7 "Generating readme.txt file" generateReadme
-runStep 8 "Configuring MySQL external access" configureMySQLExternalAccess
+runStep 8 "Configuring MySQL external access" configureMySQL
 runStep 9 "Installing PM2" installPM2
 totalEnd=$(date +%s)
 
