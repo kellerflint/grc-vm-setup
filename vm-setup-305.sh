@@ -194,10 +194,13 @@ function generateReadme() {
     echo "   pm2 stop my-app   # Stop app" >> readme.txt
 }
 
-function configureMySQLExternalAccess() {
+function configureMySQL() {
     # Allow external connections
     sudo sed -i 's/bind-address.*= 127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
     
+    # Configure memory saving
+    sudo sed -i '/^\[mysqld\]/a performance_schema = OFF\ninnodb_buffer_pool_size = 16M' /etc/mysql/mysql.conf.d/mysqld.cnf
+
     # Restart MySQL first
     sudo systemctl restart mysql > /dev/null 2>&1
     
