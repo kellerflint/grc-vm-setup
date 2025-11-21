@@ -1,0 +1,24 @@
+name: VM Setup Verification
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  verify-setup:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Make scripts executable
+      run: |
+        chmod +x vm-setup-305.sh
+        chmod +x verification/vm-setup-305-verify.sh
+
+    - name: Run VM Setup Script
+      run: ./vm-setup-305.sh
+
+    - name: Run Verification Script
+      run: ./verification/vm-setup-305-verify.sh
