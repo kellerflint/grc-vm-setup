@@ -14,7 +14,7 @@ Student was unable to connect to MySQL database via Workbench.
 * **Root Cause Speculation:** System logs show that an automatic unattended-upgrade for MySQL (specifically v8.0.43 to v8.0.44) occurred during the low-memory event. The OOM (Out of Memory) Killer may have terminated the MySQL process mid-write during this upgrade, causing corruption of the System Dictionary Information (SDI) files. MySQL logs seemed to indicate corruption of this file.
 
 ## Mitigation:
-Student VMs should not unrecoverable data (all code can be easily pulled again from GitHub), so the easiest solution is to reprovision the VM and run an updated setup script.
+Student VMs should not contain unrecoverable data (all code can be easily pulled again from GitHub), so the easiest solution is to reprovision the VM and run an updated setup script with the new memory settings.
 
 ## Corrective Actions:
 * **Updated VM Setup Script:**
