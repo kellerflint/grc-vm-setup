@@ -66,11 +66,25 @@ echo "==================================="
 # System Resources
 echo ""
 echo "[System Resources]"
-echo "--- Memory Usage ---"
+echo "--- Memory Usage (System) ---"
 free -h
 echo ""
+
+echo "--- Service Memory Footprint (RSS) ---"
+# Calculate RSS in MB for specific services
+# grep "[n]ame" trick prevents grep from matching itself
+MYSQL_MEM=$(ps -eo rss,command | grep "[m]ysqld" | awk '{sum+=$1} END {print int(sum/1024)}')
+NODE_MEM=$(ps -eo rss,command | grep "[n]ode" | awk '{sum+=$1} END {print int(sum/1024)}')
+DOCKER_MEM=$(ps -eo rss,command | grep "[d]ockerd" | awk '{sum+=$1} END {print int(sum/1024)}')
+
+echo "MySQL:      ${MYSQL_MEM:-0} MB"
+echo "Node/PM2:   ${NODE_MEM:-0} MB"
+echo "Docker:     ${DOCKER_MEM:-0} MB"
+
+echo ""
 echo "--- Top 5 Memory Consumers ---"
-ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 6
+printf "%-8s %-10s %s\n" "PID" "RSS(MB)" "COMMAND"
+ps -eo pid,rss,command --sort=-rss | head -n 6 | awk 'NR>1 {printf "%-8s %-10d %s\n", $1, int($2/1024), $3}'
 echo "==================================="
 
 if [ $FAILURES -eq 0 ]; then
