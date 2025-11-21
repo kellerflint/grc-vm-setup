@@ -7,7 +7,7 @@ Student was unable to connect to MySQL database via Workbench.
 * Verified VM connectivity via SSH. DigitalOcean monitoring showed CPU usage had been pegged at 100% for approximately 16 hours.
 * Attempts to run `mysql` failed with a socket connection error, indicating the service was down or unresponsive.
 * `htop` confirmed 100% CPU usage and RAM shortage.
-* Standard process monitoring failed to identify the culprit. However, enabling Kernel Threads in `htop` (`Shift + K`) revealed `kswapd0` was consuming 40%+ CPU.
+* Enabling Kernel Threads in `htop` (`Shift + K`) revealed `kswapd0` was consuming 40%+ CPU.
 * **Diagnosis:** The system was "thrashing." `kswapd0` was aggressively trying to reclaim memory for the OS, but because DigitalOcean Droplets do not come with Swap configured by default (to preserve SSD health), and physical RAM was exhausted, the process entered an infinite loop.
 * **Initial Fix:** Configured MySQL to run in low-memory mode (`performance_schema = OFF`, `innodb_buffer_pool_size = 16M`).
 * **Secondary Failure:** While this resolved the resource exhaustion, MySQL failed to restart. Status showed `"Server upgrade in progress"`, but it was hanging indefinitely.
