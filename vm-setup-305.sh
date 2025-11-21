@@ -45,6 +45,25 @@ function updateApt() {
     yes | sudo DEBIAN_FRONTEND=noninteractive apt-get -yqq upgrade
 }
 
+function configureSwap() {
+    # Create and activate the 1GB file (for current session)
+    sudo fallocate -l 1G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile > /dev/null 2>&1
+    sudo swapon /swapfile
+
+    # Make swap permanent
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab > /dev/null 2>&1
+
+    # Adjust memory settings (for current session)
+    sudo sysctl vm.swappiness=10 > /dev/null 2>&1
+    sudo sysctl vm.vfs_cache_pressure=50 > /dev/null 2>&1
+
+    # Make memory settings permanent
+    echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
+    echo 'vm.vfs_cache_pressure=50' | sudo tee -a /etc/sysctl.conf > /dev/null 2>&1
+}
+
 function installDocker() {
     sudo apt -y install ca-certificates curl > /dev/null 2>&1
     sudo install -m 0755 -d /etc/apt/keyrings > /dev/null 2>&1
@@ -244,14 +263,15 @@ echo "Executing 9 steps" | tee -a ./install.log
 
 totalStart=$(date +%s)
 runStep 1 "Updating apt index" updateApt
-runStep 2 "Installing docker" installDocker
-runStep 3 "Installing git" installGit
-runStep 4 "Installing MySQL Server" installMySQLServer
-runStep 5 "Installing PhpMyAdmin" installPhpMyAdmin
-runStep 6 "Installing Node" installNode
-runStep 7 "Generating readme.txt file" generateReadme
-runStep 8 "Configuring MySQL external access" configureMySQL
-runStep 9 "Installing PM2" installPM2
+runStep 2 "Configure Swap" configureSwap
+runStep 3 "Installing docker" installDocker
+runStep 4 "Installing git" installGit
+runStep 5 "Installing MySQL Server" installMySQLServer
+runStep 6 "Configuring MySQL" configureMySQL
+runStep 7 "Installing PhpMyAdmin" installPhpMyAdmin
+runStep 8 "Installing Node" installNode
+runStep 9 "Generating readme.txt file" generateReadme
+runStep 10 "Installing PM2" installPM2
 totalEnd=$(date +%s)
 
 totalElapsed=$((totalEnd - totalStart))
