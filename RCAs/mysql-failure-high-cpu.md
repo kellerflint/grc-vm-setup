@@ -11,7 +11,7 @@ Student was unable to connect to MySQL database via Workbench.
 * **Diagnosis:** The system was "thrashing." `kswapd0` was aggressively trying to reclaim memory for the OS, but because DigitalOcean Droplets do not come with Swap configured by default (to preserve SSD health), and physical RAM was exhausted, the process entered an infinite loop.
 * **Initial Fix:** Configured MySQL to run in low-memory mode (`performance_schema = OFF`, `innodb_buffer_pool_size = 16M`).
 * **Secondary Failure:** While this resolved the resource exhaustion, MySQL failed to restart. Status showed `"Server upgrade in progress"`, but it was hanging indefinitely.
-* **Root Cause Speculation:** System logs show that an automatic unattended-upgrade for MySQL (specifically v8.0.43 to v8.0.44) occurred during the low-memory event. The OOM (Out of Memory) Killer may have terminated the MySQL process mid-write during this upgrade, causing corruption of the System Dictionary Information (SDI) files. MySQL logs seemed to indicate corruption of this file.
+* **Root Cause Speculation:** System logs show that an automatic unattended-upgrade for MySQL (specifically v8.0.43 to v8.0.44) occurred during the low-memory event. The OOM (Out of Memory) Killer may have terminated the MySQL process mid-write during this upgrade, causing corruption of the System Dictionary Information (SDI) files. MySQL logs seemed to indicate corruption of these file.
 
 ## Mitigation:
 Student VMs should not contain unrecoverable data (all code can be easily pulled again from GitHub), so the easiest solution is to reprovision the VM and run an updated setup script with the new memory settings.
