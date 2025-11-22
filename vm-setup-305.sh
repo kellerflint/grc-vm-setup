@@ -46,8 +46,8 @@ function updateApt() {
 }
 
 function configureSwap() {
-    # Create and activate the 1GB file (for current session)
-    sudo fallocate -l 1G /swapfile
+    # Create and activate the 2GB file (for current session)
+    sudo fallocate -l 2G /swapfile
     sudo chmod 600 /swapfile
     sudo mkswap /swapfile > /dev/null 2>&1
     sudo swapon /swapfile
@@ -264,14 +264,16 @@ echo "Executing 9 steps" | tee -a ./install.log
 totalStart=$(date +%s)
 runStep 1 "Updating apt index" updateApt
 runStep 2 "Configure Swap" configureSwap
-runStep 3 "Installing docker" installDocker
+# runStep 3 "Installing docker" installDocker
+runStep 3 "Skipping Docker installation"
 runStep 4 "Installing git" installGit
 runStep 5 "Installing MySQL Server" installMySQLServer
 runStep 6 "Configuring MySQL" configureMySQL
-runStep 7 "Installing PhpMyAdmin" installPhpMyAdmin
+# runStep 7 "Installing PhpMyAdmin" installPhpMyAdmin
+runStep 7 "Skipping PhpMyAdmin installation"
 runStep 8 "Installing Node" installNode
-runStep 9 "Generating readme.txt file" generateReadme
-runStep 10 "Installing PM2" installPM2
+runStep 9 "Installing PM2" installPM2
+runStep 10 "Generating readme.txt file" generateReadme
 totalEnd=$(date +%s)
 
 totalElapsed=$((totalEnd - totalStart))

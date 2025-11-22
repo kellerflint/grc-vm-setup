@@ -34,13 +34,14 @@ if grep -q "performance_schema = OFF" "/etc/mysql/mysql.conf.d/mysqld.cnf"; then
 
 if grep -q "innodb_buffer_pool_size = 16M" "/etc/mysql/mysql.conf.d/mysqld.cnf"; then pass "Config: Buffer Pool Size set to 16M"; else fail "Config: Buffer Pool Size incorrect"; fi
 
+# Currently skipping Docker installation in setup script
 # [Docker]
-REPORT+="\n[Docker]\n"
-if command -v docker &> /dev/null && sudo docker info > /dev/null 2>&1; then 
-    pass "Docker installed and daemon running"
-else 
-    fail "Docker missing or daemon not responding"
-fi
+# REPORT+="\n[Docker]\n"
+# if command -v docker &> /dev/null && sudo docker info > /dev/null 2>&1; then 
+#     pass "Docker installed and daemon running"
+# else 
+#     fail "Docker missing or daemon not responding"
+# fi
 
 # [Node & PM2]
 REPORT+="\n[Node & PM2]\n"
@@ -66,26 +67,23 @@ echo "==================================="
 # System Resources
 echo ""
 echo "[System Resources]"
-echo "--- Memory Usage (System) ---"
-free -h
-echo ""
 
-echo "--- Service Memory Footprint (RSS) ---"
-# Calculate RSS in MB for specific services
-# grep "[n]ame" trick prevents grep from matching itself
-MYSQL_MEM=$(ps -eo rss,command | grep "[m]ysqld" | awk '{sum+=$1} END {print int(sum/1024)}')
-NODE_MEM=$(ps -eo rss,command | grep "[n]ode" | awk '{sum+=$1} END {print int(sum/1024)}')
-DOCKER_MEM=$(ps -eo rss,command | grep "[d]ockerd" | awk '{sum+=$1} END {print int(sum/1024)}')
-
-echo "MySQL:      ${MYSQL_MEM:-0} MB"
-echo "Node/PM2:   ${NODE_MEM:-0} MB"
-echo "Docker:     ${DOCKER_MEM:-0} MB"
-
-echo ""
 echo "--- Top 5 Memory Consumers ---"
 printf "%-8s %-10s %s\n" "PID" "RSS(MB)" "COMMAND"
 ps -eo pid,rss,command --sort=-rss | head -n 6 | awk 'NR>1 {printf "%-8s %-10d %s\n", $1, int($2/1024), $3}'
 echo "==================================="
+
+# Check MySQL Memory Usage
+MYSQL_MEM=$(ps -eo rss,command | grep "[m]ysqld" | awk '{sum+=$1} END {print int(sum/1024)}')
+MYSQL_MEM=${MYSQL_MEM:-0}
+
+if [ "$MYSQL_MEM" -gt 200 ]; then
+    echo "FAIL: MySQL is using ${MYSQL_MEM}MB of RAM, which is > 200MB."
+    echo "      This is a concern for servers with 1GB RAM."
+    FAILURES=1
+else
+    echo "PASS: MySQL Memory Usage is ${MYSQL_MEM}MB (Limit: 200MB)"
+fi
 
 if [ $FAILURES -eq 0 ]; then
     exit 0
