@@ -163,7 +163,7 @@ function generateReadme() {
     echo "" >> readme.txt
     echo "2. To connect to the MySQL database using the root password:" >> readme.txt
     echo "   mysql -h localhost -P 3306 -u root -p" >> readme.txt
-    echo "   When prompted, enter the root password: - '$rootPassword'" >> readme.txt
+    echo "   When prompted, enter the root password: - $rootPassword" >> readme.txt
     echo "" >> readme.txt
     echo "3. Using Git to manage project files:" >> readme.txt
     echo "   - Clone a repository:" >> readme.txt
