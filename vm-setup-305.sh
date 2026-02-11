@@ -159,9 +159,8 @@ function generateReadme() {
     echo "   fnm install <version> (installs a new version - eg. fnm install 23)" >> readme.txt
     echo "   fnm use <version> (switches to the specified version - eg. fnm use 23)" >> readme.txt
     echo "" >> readme.txt
-    echo "2. To connect to the MySQL database using the root password:" >> readme.txt
-    echo "   mysql -h localhost -P 3306 -u root -p" >> readme.txt
-    echo "   When prompted, enter the root password: - $rootPassword" >> readme.txt
+    echo "2. To connect to the MySQL database remotely:" >> readme.txt
+    echo "   The user is: $mysqlAdminUser and the password is: $mysqlRemotePassword" >> readme.txt
     echo "" >> readme.txt
     echo "3. Using Git to manage project files:" >> readme.txt
     echo "   - Clone a repository:" >> readme.txt
