@@ -85,8 +85,6 @@ function installMySQLServer() {
     sudo systemctl enable mysql > /dev/null 2>&1
     sudo systemctl start mysql > /dev/null 2>&1
     sudo systemctl status mysql >> ./install.log 
-
-    sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$rootPassword'; FLUSH PRIVILEGES;" > /dev/null 2>&1
 }
 
 function installPhpMyAdmin() {
@@ -161,9 +159,8 @@ function generateReadme() {
     echo "   fnm install <version> (installs a new version - eg. fnm install 23)" >> readme.txt
     echo "   fnm use <version> (switches to the specified version - eg. fnm use 23)" >> readme.txt
     echo "" >> readme.txt
-    echo "2. To connect to the MySQL database using the root password:" >> readme.txt
-    echo "   mysql -h localhost -P 3306 -u root -p" >> readme.txt
-    echo "   When prompted, enter the root password: - $rootPassword" >> readme.txt
+    echo "2. To connect to the MySQL database remotely:" >> readme.txt
+    echo "   The user is: $mysqlAdminUser and the password is: $mysqlRemotePassword" >> readme.txt
     echo "" >> readme.txt
     echo "3. Using Git to manage project files:" >> readme.txt
     echo "   - Clone a repository:" >> readme.txt
@@ -222,12 +219,11 @@ function configureMySQL() {
 
     # Restart MySQL first
     sudo systemctl restart mysql > /dev/null 2>&1
-    
-    # Run each MySQL command separately with password
-    sudo mysql -u root -p"$rootPassword" -e "DROP USER IF EXISTS 'root'@'%';" > /dev/null 2>&1
-    sudo mysql -u root -p"$rootPassword" -e "CREATE USER 'root'@'%' IDENTIFIED BY '$rootPassword';" > /dev/null 2>&1
-    sudo mysql -u root -p"$rootPassword" -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;" > /dev/null 2>&1
-    sudo mysql -u root -p"$rootPassword" -e "FLUSH PRIVILEGES;" > /dev/null 2>&1
+
+    sudo mysql -e "DROP USER IF EXISTS '$mysqlAdminUser'@'%';" > /dev/null 2>&1
+    sudo mysql -e "CREATE USER '$mysqlAdminUser'@'%' IDENTIFIED WITH mysql_native_password BY '$mysqlRemotePassword';" > /dev/null 2>&1
+    sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO '$mysqlAdminUser'@'%' WITH GRANT OPTION;" > /dev/null 2>&1
+    sudo mysql -e "FLUSH PRIVILEGES;" > /dev/null 2>&1
     
     # Open firewall port
     sudo ufw allow 3306 > /dev/null 2>&1
@@ -258,7 +254,8 @@ function runStep() {
 }
 
 #install steps
-rootPassword=$(genPassword) # used in steps 4, 5, 8
+mysqlAdminUser="admin"
+mysqlRemotePassword=$(genPassword)
 echo "Executing 9 steps" | tee -a ./install.log
 
 totalStart=$(date +%s)
